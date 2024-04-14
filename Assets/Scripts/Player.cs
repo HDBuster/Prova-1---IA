@@ -13,6 +13,10 @@ public class Player : MonoBehaviour
     Rigidbody2D rb;
     Animator animator;
 
+    GameObject slashObject;
+    Animator slashAnimator;
+    SpriteRenderer slashSprite;
+
     [Header("Settings")]
     [SerializeField] float walkSpeed;
     [SerializeField]float maxWalkSpeed;
@@ -20,6 +24,7 @@ public class Player : MonoBehaviour
     [SerializeField] float rollForce;
     [SerializeField] float jumpHeight;
     [SerializeField] float climbSpeed;
+    [SerializeField] float attackSpeed;
 
     [Header("Values")]
     [SerializeField] float move;
@@ -37,12 +42,14 @@ public class Player : MonoBehaviour
     public bool isWalledRight = false;
     public bool isClimbing = false;
     public bool hasRolled = false;
+    public bool attackEnded = false;
 
     [Header("Player Statistics")]
     [SerializeField] float playerSpeedX;
     [SerializeField] float playerSpeedY;
 
-    enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll }
+
+    enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll, Attack, Attack_Up, Attack_Down }
     State state = State.Idle;
 
     //-------------------------------------------------
@@ -79,6 +86,10 @@ public class Player : MonoBehaviour
         {
             state = State.Hanging;
         }
+        else if (attack == 1)
+        {
+            state = State.Attack;
+        }
     }
 
     void WalkState()
@@ -89,7 +100,7 @@ public class Player : MonoBehaviour
         SpriteFlip();
         
         //transitions
-        if (isGrounded && rb.velocity.normalized.x == 0)
+        if (isGrounded && rb.velocity.normalized.x == 0 && move == 0)
         {
             state = State.Idle;
         }
@@ -100,6 +111,10 @@ public class Player : MonoBehaviour
         else if (crouch == 1 && isGrounded && move != 0)
         {
             state = State.Crouch_Walk;
+        }
+        else if (attack == 1)
+        {
+            state = State.Attack;
         }
     }
 
@@ -304,6 +319,37 @@ public class Player : MonoBehaviour
 
     }
 
+    void AttackState()
+    {
+        //action
+        animator.Play("Attack");
+        animator.speed = attackSpeed * 0.1f;
+
+        slashObject.transform.position = this.transform.position + new Vector3(0.6f * direction, 0.3f, 0);
+        SlashSpriteFlip();
+        slashSprite.enabled = true;
+
+        //transition
+        if (attackEnded)
+        {
+            attackEnded = false;
+            slashSprite.enabled = false;
+
+            if (isGrounded && move == 0)
+            {
+                state = State.Idle;
+            }
+            else if (isGrounded && move != 0)
+            {
+                state = State.Walk;
+            }
+            else if (!isGrounded)
+            {
+                state = State.Jump;
+            }
+        }
+    }
+
     void SwitchState()
     {
         switch (state)
@@ -319,6 +365,7 @@ public class Player : MonoBehaviour
             case State.Climb:       ClimbState();       break;
             case State.Hanging:     HangingState();     break;
             case State.Slide_Down:  Slide_DownState();  break;
+            case State.Attack:      AttackState();      break;
         }
     }
 
@@ -335,6 +382,31 @@ public class Player : MonoBehaviour
         {
             sprite.flipX = false;
             direction = -1;
+        }
+    }
+
+    void SlashSpriteFlip()
+    {
+        switch (direction)
+        {
+            case 1:
+                slashSprite.flipX = true;
+                break;
+            case -1:
+                slashSprite.flipX = false;
+                break;
+        }
+    }
+
+    void AttackEnd(int end)
+    {
+        if (end == 1)
+        {
+            attackEnded = true;
+        }
+        else
+        {
+            attackEnded = false;
         }
     }
 
@@ -459,6 +531,8 @@ public class Player : MonoBehaviour
         }
     }
 
+    //---------------------------------------------------
+
     void Awake()
     {
         sprite = GetComponent<SpriteRenderer>();
@@ -476,5 +550,10 @@ public class Player : MonoBehaviour
         contactFilterRight.useNormalAngle = true;
         contactFilterRight.minNormalAngle = 179f;
         contactFilterRight.maxNormalAngle = 180f;
+
+        slashObject = this.transform.GetChild(0).gameObject;
+        slashAnimator = slashObject.GetComponent<Animator>();
+        slashSprite = slashObject.GetComponent<SpriteRenderer>();
+        slashSprite.enabled = false;
     }
 }
