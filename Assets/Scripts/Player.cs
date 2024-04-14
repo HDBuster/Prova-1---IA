@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] float walkSpeed;
-    float maxWalkSpeed;
+    [SerializeField]float maxWalkSpeed;
     [SerializeField] float crouchWalkSpeed;
     [SerializeField] float rollForce;
     [SerializeField] float jumpHeight;
@@ -30,32 +30,30 @@ public class Player : MonoBehaviour
     [SerializeField] float crouch;
     [SerializeField] float attack;
     [SerializeField] sbyte direction;
-    [SerializeField] float stopThreshold;
 
     [Header("Checks")]
     public bool isGrounded = false;
     public bool isWalledLeft = false;
     public bool isWalledRight = false;
     public bool isClimbing = false;
-    public bool hasJumped = false;
     public bool hasRolled = false;
 
     [Header("Player Statistics")]
-    [SerializeField] float playerSpeed;
+    [SerializeField] float playerSpeedX;
+    [SerializeField] float playerSpeedY;
 
     enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll }
     State state = State.Idle;
+
+    //-------------------------------------------------
+    //Estados e animação
+
     void Update()
     {
         SwitchState();
-        playerSpeed = rb.velocity.x;
-    }
 
-
-    void FixedUpdate()
-    {
-        InputValues();
-        GeneralMove();
+        playerSpeedX = rb.velocity.x;
+        playerSpeedY = rb.velocity.y;
     }
 
     void IdleState()
@@ -63,26 +61,21 @@ public class Player : MonoBehaviour
         //actions
         animator.Play("Idle");
         animator.speed = 1;
-        hasJumped = false;
-        isClimbing = false;
 
         //transitions
-        if (move != 0 && isGrounded) //Walk
+        if (move != 0 && isGrounded)
         {
             state = State.Walk;
         }
-
-        if (jump == 1 && isGrounded && hasJumped == false)
+        else if (jump == 1 && isGrounded)
         {
             state = State.Jump;
         }
-
-        if (crouch == 1 && isGrounded && move == 0)
+        else if (crouch == 1 && isGrounded && move == 0)
         {
             state = State.Crouch;
         }
-
-        if ((isWalledLeft || isWalledRight) && climb == 1)
+        else if ((isWalledLeft || isWalledRight) && climb == 1)
         {
             state = State.Hanging;
         }
@@ -91,11 +84,9 @@ public class Player : MonoBehaviour
     void WalkState()
     {
         //actions
-        if (rb.velocity.normalized.x != 0) { animator.Play("Walk"); }
+        if (rb.velocity.normalized.x != 0) { animator.Play("Walk"); } // Fixes changing animation when walking in walls
         animator.speed = Mathf.Abs(rb.velocity.x) * 0.05f;
         SpriteFlip();
-        hasJumped = false;
-        hasRolled = false;
         
         //transitions
         if (isGrounded && rb.velocity.normalized.x == 0)
@@ -128,10 +119,6 @@ public class Player : MonoBehaviour
         {
             state = State.Hanging;
         }
-        else if (isGrounded && hasJumped)
-        {
-            state = State.Idle;
-        }
     }
 
     void AirState()
@@ -158,7 +145,6 @@ public class Player : MonoBehaviour
         animator.Play("Fall");
         animator.speed = Mathf.Abs(rb.velocity.normalized.y) * 0.2f;
         SpriteFlip();
-        isClimbing = false;
 
         //transition
         if (isGrounded)
@@ -222,8 +208,6 @@ public class Player : MonoBehaviour
         animator.speed = Mathf.Abs(rb.velocity.x) * 0.05f;
         hasRolled = true;
 
-        float recPostion = rb.transform.position.x;
-
         //transition
         if (rb.velocity.normalized.x == 0)
         {
@@ -234,13 +218,14 @@ public class Player : MonoBehaviour
     void ClimbState()
     {
         //actions
-        if (updown == 1)
+        switch (updown)
         {
-            animator.Play("Climb");
-        }
-        else if (updown == -1)
-        {
-            animator.Play("Climb_Down");
+            case 1:
+                animator.Play("Climb");
+                break;
+            case -1:
+                animator.Play("Climb_Down");
+                break;
         }
         animator.speed = Mathf.Abs(rb.velocity.y) * 0.05f;
 
@@ -252,6 +237,7 @@ public class Player : MonoBehaviour
         else if (jump == 1)
         {
             state = State.Jump;
+            isClimbing = false;
         }
         else if (run == 1 && updown == -1)
         {
@@ -282,6 +268,7 @@ public class Player : MonoBehaviour
         if (jump == 1)
         {
             state = State.Jump;
+            isClimbing = false;
         }
         else if (updown != 0 && run == 0)
         {
@@ -312,11 +299,10 @@ public class Player : MonoBehaviour
         else if (jump == 1)
         {
             state = State.Jump;
+            isClimbing = false;
         }
 
     }
-
-    //-----------------------------------------------------------------------------------------
 
     void SwitchState()
     {
@@ -336,9 +322,33 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void GeneralMove()
+    void SpriteFlip()
     {
+        //Virar sprite para direita
+        if ((move > 0 || rb.velocity.normalized.x > 0) && sprite.flipX == false)
+        {
+            sprite.flipX = true;
+            direction = 1;
+        }
+        //Virar sprite para esquerda
+        else if ((move < 0 || rb.velocity.normalized.x < 0) && sprite.flipX == true)
+        {
+            sprite.flipX = false;
+            direction = -1;
+        }
+    }
 
+    //---------------------------------------------------------
+    //Física e input
+
+    void FixedUpdate()
+    {
+        InputValues();
+        StatePhysics();
+    }
+
+    private void StatePhysics()
+    {
         switch (state)
         {
             case State.Jump:
@@ -351,35 +361,43 @@ public class Player : MonoBehaviour
                 rb.AddRelativeForce(new Vector2(0, jumpHeight), ForceMode2D.Impulse);
                 }
                 break;
+
             case State.Walk:
-                rb.AddForce(new Vector2(move * walkSpeed, 0), ForceMode2D.Impulse);
+                rb.AddRelativeForce(new Vector2(move * walkSpeed, 0), ForceMode2D.Impulse);
                 rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxWalkSpeed);
                 break;
+
             case State.Crouch_Walk:
-                rb.AddForce(new Vector2(move * walkSpeed * 0.25f, 0), ForceMode2D.Impulse);
+                rb.AddRelativeForce(new Vector2(move * crouchWalkSpeed, 0), ForceMode2D.Impulse);
                 break;
+
             case State.Roll:
                 if (!hasRolled)
                 {
-                    rb.AddForce(new Vector2(rollForce * direction, 0), ForceMode2D.Impulse);
+                    rb.AddRelativeForce(new Vector2(rollForce * direction, 0), ForceMode2D.Impulse);
                 }
                 break;
+
             case State.Climb:
                 rb.velocity = new Vector2(0, updown * climbSpeed);
                 break;
+
             case State.Slide_Down:
                 rb.velocity = new Vector2(0, climbSpeed * -2);
                 break;
+
             case State.Hanging:
                 rb.velocity = new Vector2(0,0);
                 break;
         }
 
+        //Movimento no ar
         if ((state == State.Hanging || state == State.Climb || state == State.Slide_Down) && jump == 1)
         {
             rb.AddRelativeForce(new Vector2((jumpHeight) * (direction * -1),jumpHeight), ForceMode2D.Impulse);
         }
 
+        //Tirar gravidade enquanto estiver escalando
         if (state == State.Hanging || state == State.Climb || state == State.Slide_Down)
         {
             rb.gravityScale = 0;
@@ -387,77 +405,6 @@ public class Player : MonoBehaviour
         else
         {
             rb.gravityScale = 1;
-        }
-
-        /*if (state == State.Walk || state == State.Jump || state == State.Air || state == State.Fall)
-        {
-            rb.AddForce(new Vector2(move * walkSpeed, 0), ForceMode2D.Impulse);
-        }
-
-        if (state == State.Crouch_Walk)
-        {
-            rb.velocity = new Vector2(crouchWalkSpeed * move, 0);
-        }
-
-        if (state == State.Walk)
-        {
-            rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxWalkSpeed);
-            rb.drag = 5;
-        }
-        else
-        {
-            rb.drag = 1;
-        }
-
-        if (hasJumped == false && state == State.Jump)
-        {
-            rb.AddForce(new Vector2(0, jumpHeight), ForceMode2D.Impulse);
-            hasJumped = true;
-        }
-
-        if (hasRolled == false && state == State.Roll)
-        {
-            rb.AddForce(new Vector2(rollForce * direction, 0), ForceMode2D.Impulse);
-            hasRolled = true;
-        }
-
-        if (state == State.Climb)
-        {
-            rb.velocity = new Vector2(0, updown * climbSpeed);
-        }
-
-        if ((state == State.Hanging || state == State.Climb || state == State.Slide_Down) && jump == 1)
-        {
-            rb.AddForce(new Vector2(jump * (direction * -1) * 10, jump), ForceMode2D.Impulse);
-            hasJumped = true;
-        }
-
-        if (state == State.Slide_Down)
-        {
-            rb.velocity = new Vector2(0, climbSpeed * -2);
-        }
-
-        if (state == State.Hanging)
-        {
-            rb.gravityScale = 0;
-        }
-        else
-        {
-            rb.gravityScale = 1;
-        }*/
-    }
-
-    void SpriteFlip()
-    {
-        if ((move > 0 || rb.velocity.normalized.x > 0) && sprite.flipX == false)
-        {
-            sprite.flipX = true;
-            direction = 1;
-        }
-        else if ((move < 0 || rb.velocity.normalized.x < 0) && sprite.flipX == true)
-        {
-            sprite.flipX = false;
-            direction = -1;
         }
     }
 
@@ -472,6 +419,7 @@ public class Player : MonoBehaviour
         updown  = input.FindActionMap("Player").FindAction("updown").ReadValue<float>();
     }
 
+    // Filtros para achar o contato, dependendo do angulo de contato do outro objeto
     ContactFilter2D contactFilterGround;
     ContactFilter2D contactFilterLeft;
     ContactFilter2D contactFilterRight;
@@ -516,8 +464,6 @@ public class Player : MonoBehaviour
         sprite = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-
-        maxWalkSpeed = walkSpeed * 5;
 
         contactFilterGround.useNormalAngle = true;
         contactFilterGround.minNormalAngle = 90f;

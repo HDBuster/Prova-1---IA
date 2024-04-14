@@ -50,10 +50,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   input: {fileID: -944628639613478452, guid: b9fdf32d7db67dc4a8223ab5593e550c, type: 3}
   walkSpeed: 1
+  maxWalkSpeed: 5
   crouchWalkSpeed: 1
   rollForce: 10
-  jumpHeight: 10
-  climbSpeed: 0
+  jumpHeight: 5
+  climbSpeed: 5
   move: 0
   updown: 0
   jump: 0
@@ -66,9 +67,10 @@ MonoBehaviour:
   isGrounded: 0
   isWalledLeft: 0
   isWalledRight: 0
-  hasJumped: 0
+  isClimbing: 0
   hasRolled: 0
-  playerSpeed: 0
+  playerSpeedX: 0
+  playerSpeedY: 0
 --- !u!212 &7858187186153273211
 SpriteRenderer:
   m_ObjectHideFlags: 0
