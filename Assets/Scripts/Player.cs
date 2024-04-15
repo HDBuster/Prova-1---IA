@@ -46,6 +46,7 @@ public class Player : MonoBehaviour
     public bool isClimbing = false;
     public bool hasRolled = false;
     public bool attackEnded = false;
+    public bool isClimbableWall = false;
 
     [Header("Player Statistics")]
     [SerializeField] float playerSpeedX;
@@ -88,7 +89,7 @@ public class Player : MonoBehaviour
         {
             state = State.Crouch;
         }
-        else if ((isWalledLeft || isWalledRight) && climb == 1)
+        else if ((isWalledLeft || isWalledRight) && climb == 1 && isClimbableWall)
         {
             state = State.Hanging;
         }
@@ -98,6 +99,10 @@ public class Player : MonoBehaviour
         }
         else if (run == 1 && move.x != 0){
             state = State.Run;
+        }
+        else if (rb.velocity.y < 0)
+        {
+            state = State.Fall;
         }
     }
 
@@ -129,6 +134,14 @@ public class Player : MonoBehaviour
         {
             state = State.Run;
         }
+        else if ((isWalledLeft || isWalledRight) && climb == 1 && isClimbableWall)
+        {
+            state = State.Hanging;
+        }
+        else if (rb.velocity.y < 0)
+        {
+            state = State.Fall;
+        }
     }
 
     void JumpState()
@@ -143,7 +156,7 @@ public class Player : MonoBehaviour
         {
             state = State.Air;
         }
-        else if ((isWalledLeft || isWalledRight) && climb == 1)
+        else if ((isWalledLeft || isWalledRight) && climb == 1 && isClimbableWall)
         {
             state = State.Hanging;
         }
@@ -165,7 +178,7 @@ public class Player : MonoBehaviour
         {
             state = State.Fall;
         }
-        else if ((isWalledLeft || isWalledRight) && climb == 1)
+        else if ((isWalledLeft || isWalledRight) && climb == 1 && isClimbableWall)
         {
             state = State.Hanging;
         }
@@ -187,7 +200,7 @@ public class Player : MonoBehaviour
         {
             state = State.Idle;
         }
-        else if ((isWalledLeft || isWalledRight) && climb == 1)
+        else if ((isWalledLeft || isWalledRight) && climb == 1 && isClimbableWall)
         {
             state = State.Hanging;
         }
@@ -466,6 +479,18 @@ public class Player : MonoBehaviour
         {
             state = State.Idle;
         }
+        else if ((isWalledLeft || isWalledRight) && climb == 1 && isClimbableWall)
+        {
+            state = State.Hanging;
+        }
+        else if (rb.velocity.y < 0)
+        {
+            state = State.Fall;
+        }
+        else if (jump == 1 && isGrounded)
+        {
+            state = State.Jump;
+        }
     }
 
     void SwitchState()
@@ -545,7 +570,7 @@ public class Player : MonoBehaviour
             case State.Jump:
             case State.Air:
             case State.Fall:
-                rb.AddRelativeForce(new Vector2(move.x,0), ForceMode2D.Impulse);
+                rb.AddRelativeForce(new Vector2(move.x * walkSpeed,0), ForceMode2D.Impulse);
 
                 if (isGrounded)
                 {
@@ -610,7 +635,7 @@ public class Player : MonoBehaviour
     ContactFilter2D contactFilterLeft;
     ContactFilter2D contactFilterRight;
 
-    void OnCollisionEnter2D()
+    void OnCollisionEnter2D(Collision2D collider)
     {
         if (rb.IsTouching(contactFilterGround))
         {
@@ -625,9 +650,14 @@ public class Player : MonoBehaviour
         {
             isWalledRight = true;
         }
+        
+        if (collider.gameObject.CompareTag("ClimbableWall"))
+        {
+            isClimbableWall = true;
+        }
     }
 
-    void OnCollisionExit2D()
+    void OnCollisionExit2D(Collision2D collider)
     {
         if (!rb.IsTouching(contactFilterGround))
         {
@@ -642,6 +672,11 @@ public class Player : MonoBehaviour
         if (!rb.IsTouching(contactFilterRight))
         {
             isWalledRight = false;
+        }
+
+        if (collider.gameObject.CompareTag("ClimbableWall"))
+        {
+            isClimbableWall = false;
         }
     }
 
