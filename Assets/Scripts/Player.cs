@@ -19,12 +19,16 @@ public class Player : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] float walkSpeed;
-    [SerializeField]float maxWalkSpeed;
+    [SerializeField] float maxWalkSpeed;
     [SerializeField] float crouchWalkSpeed;
     [SerializeField] float rollForce;
     [SerializeField] float jumpHeight;
     [SerializeField] float climbSpeed;
     [SerializeField] float attackSpeed;
+    [SerializeField] float runSpeed;
+    [SerializeField] float maxRunSpeed;
+    [SerializeField] float runTransitionSpeed;
+    [SerializeField] float climbJumpForce;
 
     [Header("Values")]
     [SerializeField] Vector2 move;
@@ -49,7 +53,7 @@ public class Player : MonoBehaviour
     [SerializeField] float xInput;
 
 
-    enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll, Attack, Attack_Air }
+    enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll, Attack, Attack_Air, Run }
     State state = State.Idle;
 
     //-------------------------------------------------
@@ -92,6 +96,9 @@ public class Player : MonoBehaviour
         {
             state = State.Attack;
         }
+        else if (run == 1 && move.x != 0){
+            state = State.Run;
+        }
     }
 
     void WalkState()
@@ -117,6 +124,10 @@ public class Player : MonoBehaviour
         else if (attack == 1)
         {
             state = State.Attack;
+        }
+        else if (run == 1 && move.x != 0)
+        {
+            state = State.Run;
         }
     }
 
@@ -287,7 +298,7 @@ public class Player : MonoBehaviour
             sprite.flipX = false;
             direction = -1;
         }
-        else if (isWalledLeft)
+        else if (isWalledRight)
         {
             sprite.flipX = true;
             direction = 1;
@@ -430,6 +441,33 @@ public class Player : MonoBehaviour
         }
     }
 
+    void RunState()
+    {
+        //action
+        if (Mathf.Abs(rb.velocity.x) < runTransitionSpeed)
+        {
+            animator.Play("Fast");
+            //animator.speed = Mathf.Abs(rb.velocity.x) * 0.1f;
+        }
+        else if (Mathf.Abs(rb.velocity.x) >= runTransitionSpeed)
+        {
+            animator.Play("Run");
+            //animator.speed = 1f;
+        }
+        animator.speed = Mathf.Abs(rb.velocity.x) * 0.05f;
+        SpriteFlip();
+
+        //transition
+        if (isGrounded && move.x != 0 && rb.velocity.normalized.x != 0 && run == 0)
+        {
+            state = State.Walk;
+        }
+        else if (isGrounded && move.x == 0 && rb.velocity.normalized.x == 0)
+        {
+            state = State.Idle;
+        }
+    }
+
     void SwitchState()
     {
         switch (state)
@@ -447,6 +485,7 @@ public class Player : MonoBehaviour
             case State.Slide_Down:  Slide_DownState();  break;
             case State.Attack:      AttackState();      break;
             case State.Attack_Air:  AttackAirState();   break;
+            case State.Run:         RunState();         break;
         }
     }
 
@@ -510,7 +549,7 @@ public class Player : MonoBehaviour
 
                 if (isGrounded)
                 {
-                rb.AddRelativeForce(new Vector2(0, jumpHeight), ForceMode2D.Impulse);
+                    rb.AddRelativeForce(new Vector2(0, jumpHeight), ForceMode2D.Impulse);
                 }
                 break;
 
@@ -541,12 +580,11 @@ public class Player : MonoBehaviour
             case State.Hanging:
                 rb.velocity = new Vector2(0,0);
                 break;
-        }
 
-        //Movimento no ar
-        if ((state == State.Hanging || state == State.Climb || state == State.Slide_Down) && jump == 1)
-        {
-            rb.AddRelativeForce(new Vector2((jumpHeight) * (direction * -1),jumpHeight), ForceMode2D.Impulse);
+            case State.Run:
+                rb.AddRelativeForce(new Vector2(move.x * runSpeed,0), ForceMode2D.Impulse);
+                rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxRunSpeed);
+                break;
         }
 
         //Tirar gravidade enquanto estiver escalando

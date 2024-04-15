@@ -151,16 +151,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fadc3565eb2a3c4ab3f2b51a4493d0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  input: {fileID: -944628639613478452, guid: b9fdf32d7db67dc4a8223ab5593e550c, type: 3}
-  walkSpeed: 1
-  maxWalkSpeed: 5
+  walkSpeed: 0.2
+  maxWalkSpeed: 2
   crouchWalkSpeed: 1
-  rollForce: 10
+  rollForce: 5
   jumpHeight: 5
   climbSpeed: 5
   attackSpeed: 5
+  runSpeed: 0.4
+  maxRunSpeed: 10
+  runTransitionSpeed: 9.9
+  climbJumpForce: 0
   move: {x: 0, y: 0}
-  updown: 0
   jump: 0
   climb: 0
   run: 0
@@ -175,6 +177,7 @@ MonoBehaviour:
   attackEnded: 0
   playerSpeedX: 0
   playerSpeedY: 0
+  xInput: 0
 --- !u!212 &7858187186153273211
 SpriteRenderer:
   m_ObjectHideFlags: 0
