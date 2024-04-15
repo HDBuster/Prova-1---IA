@@ -9,7 +9,7 @@
                     "name": "move",
                     "type": "Value",
                     "id": "9dd89f0b-c0f4-4b26-8f58-2dea0287d3d4",
-                    "expectedControlType": "Axis",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": ""
                 },
@@ -52,21 +52,13 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
-                },
-                {
-                    "name": "updown",
-                    "type": "Value",
-                    "id": "79ce21d4-0bbe-428f-b705-0d761ea0303e",
-                    "expectedControlType": "Axis",
-                    "processors": "",
-                    "interactions": ""
                 }
             ],
             "bindings": [
                 {
-                    "name": "1D Axis",
-                    "id": "b94f69f7-a316-41be-bad2-ff54607d21e3",
-                    "path": "1DAxis",
+                    "name": "2D Vector",
+                    "id": "8d04c2e5-51f0-4f2b-b028-64971c5c2b5e",
+                    "path": "2DVector(mode=2)",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -75,8 +67,30 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "negative",
-                    "id": "4e29dda8-b7d9-4260-ae4b-8c8925116bdf",
+                    "name": "up",
+                    "id": "874f44c6-a6af-4b0d-be4b-4a0d5365cb75",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "6aadbe22-a2cf-41b7-aeb3-5e911030486c",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "6e563e88-5478-42d8-8e50-85de7d67daf5",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
@@ -86,8 +100,8 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "positive",
-                    "id": "2e25dfaa-084d-4759-a61c-826a693bf528",
+                    "name": "right",
+                    "id": "a45d4cc9-820c-4e78-8a25-e9427181456a",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
@@ -150,39 +164,6 @@
                     "action": "climb",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "1D Axis",
-                    "id": "010ce348-75bf-4333-99a2-568bc7b1e126",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "updown",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "positive",
-                    "id": "99052674-da4f-40f8-852e-f5d2997a620e",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "updown",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "negative",
-                    "id": "4ee2e64f-2016-4f5c-94d1-09ea477351cd",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "updown",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 }
             ]
         }

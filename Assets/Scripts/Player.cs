@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,7 +9,6 @@ using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] InputActionAsset input;
     SpriteRenderer sprite;
     Rigidbody2D rb;
     Animator animator;
@@ -27,8 +27,7 @@ public class Player : MonoBehaviour
     [SerializeField] float attackSpeed;
 
     [Header("Values")]
-    [SerializeField] float move;
-    [SerializeField] float updown;
+    [SerializeField] Vector2 move;
     [SerializeField] float jump;
     [SerializeField] float climb;
     [SerializeField] float run;
@@ -47,6 +46,7 @@ public class Player : MonoBehaviour
     [Header("Player Statistics")]
     [SerializeField] float playerSpeedX;
     [SerializeField] float playerSpeedY;
+    [SerializeField] float xInput;
 
 
     enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll, Attack, Attack_Up, Attack_Down }
@@ -61,6 +61,8 @@ public class Player : MonoBehaviour
 
         playerSpeedX = rb.velocity.x;
         playerSpeedY = rb.velocity.y;
+
+        xInput = move.x;
     }
 
     void IdleState()
@@ -70,7 +72,7 @@ public class Player : MonoBehaviour
         animator.speed = 1;
 
         //transitions
-        if (move != 0 && isGrounded)
+        if (move.x != 0 && isGrounded)
         {
             state = State.Walk;
         }
@@ -78,7 +80,7 @@ public class Player : MonoBehaviour
         {
             state = State.Jump;
         }
-        else if (crouch == 1 && isGrounded && move == 0)
+        else if (crouch == 1 && isGrounded && move.x == 0)
         {
             state = State.Crouch;
         }
@@ -100,7 +102,7 @@ public class Player : MonoBehaviour
         SpriteFlip();
         
         //transitions
-        if (isGrounded && rb.velocity.normalized.x == 0 && move == 0)
+        if (isGrounded && rb.velocity.normalized.x == 0 && move.x == 0)
         {
             state = State.Idle;
         }
@@ -108,7 +110,7 @@ public class Player : MonoBehaviour
         {
             state = State.Jump;
         }
-        else if (crouch == 1 && isGrounded && move != 0)
+        else if (crouch == 1 && isGrounded && move.x != 0)
         {
             state = State.Crouch_Walk;
         }
@@ -180,11 +182,11 @@ public class Player : MonoBehaviour
         hasRolled = false;
 
         //transition
-        if (crouch == 0 && isGrounded && move == 0)
+        if (crouch == 0 && isGrounded && move.x == 0)
         {
             state = State.Idle;
         }
-        else if (crouch == 1 && isGrounded && move != 0)
+        else if (crouch == 1 && isGrounded && move.x != 0)
         {
             state = State.Crouch_Walk;
         }
@@ -202,11 +204,11 @@ public class Player : MonoBehaviour
         SpriteFlip();
 
         //transition
-        if (crouch == 1 && isGrounded && move == 0)
+        if (crouch == 1 && isGrounded && move.x == 0)
         {
             state = State.Crouch;
         }
-        else if (crouch == 0 && isGrounded && move != 0)
+        else if (crouch == 0 && isGrounded && move.x != 0)
         {
             state = State.Walk;
         }
@@ -233,7 +235,7 @@ public class Player : MonoBehaviour
     void ClimbState()
     {
         //actions
-        switch (updown)
+        switch (move.y)
         {
             case 1:
                 animator.Play("Climb");
@@ -245,7 +247,7 @@ public class Player : MonoBehaviour
         animator.speed = Mathf.Abs(rb.velocity.y) * 0.05f;
 
         //transition
-        if (updown == 0)
+        if (move.y == 0)
         {
             state = State.Hanging;
         }
@@ -254,7 +256,7 @@ public class Player : MonoBehaviour
             state = State.Jump;
             isClimbing = false;
         }
-        else if (run == 1 && updown == -1)
+        else if (run == 1 && move.y == -1)
         {
             state = State.Slide_Down;
         }
@@ -285,11 +287,11 @@ public class Player : MonoBehaviour
             state = State.Jump;
             isClimbing = false;
         }
-        else if (updown != 0 && run == 0)
+        else if (move.y != 0 && run == 0)
         {
             state = State.Climb;
         }
-        else if (run == 1 && updown == -1)
+        else if (run == 1 && move.y == -1)
         {
             state = State.Slide_Down;
         }
@@ -303,11 +305,11 @@ public class Player : MonoBehaviour
 
 
         //transition
-        if (run == 0 && updown == 0)
+        if (run == 0 && move.y == 0)
         {
             state = State.Hanging;
         }
-        else if (run == 0 && updown != 0)
+        else if (run == 0 && move.y != 0)
         {
             state = State.Climb;
         }
@@ -335,11 +337,11 @@ public class Player : MonoBehaviour
             attackEnded = false;
             slashSprite.enabled = false;
 
-            if (isGrounded && move == 0)
+            if (isGrounded && move.x == 0)
             {
                 state = State.Idle;
             }
-            else if (isGrounded && move != 0)
+            else if (isGrounded && move.x != 0)
             {
                 state = State.Walk;
             }
@@ -372,13 +374,13 @@ public class Player : MonoBehaviour
     void SpriteFlip()
     {
         //Virar sprite para direita
-        if ((move > 0 || rb.velocity.normalized.x > 0) && sprite.flipX == false)
+        if ((move.x > 0 || rb.velocity.normalized.x > 0) && sprite.flipX == false)
         {
             sprite.flipX = true;
             direction = 1;
         }
         //Virar sprite para esquerda
-        else if ((move < 0 || rb.velocity.normalized.x < 0) && sprite.flipX == true)
+        else if ((move.x < 0 || rb.velocity.normalized.x < 0) && sprite.flipX == true)
         {
             sprite.flipX = false;
             direction = -1;
@@ -415,7 +417,6 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        InputValues();
         StatePhysics();
     }
 
@@ -426,7 +427,7 @@ public class Player : MonoBehaviour
             case State.Jump:
             case State.Air:
             case State.Fall:
-                rb.AddRelativeForce(new Vector2(move,0), ForceMode2D.Impulse);
+                rb.AddRelativeForce(new Vector2(move.x,0), ForceMode2D.Impulse);
 
                 if (isGrounded)
                 {
@@ -435,12 +436,12 @@ public class Player : MonoBehaviour
                 break;
 
             case State.Walk:
-                rb.AddRelativeForce(new Vector2(move * walkSpeed, 0), ForceMode2D.Impulse);
+                rb.AddRelativeForce(new Vector2(move.x * walkSpeed, 0), ForceMode2D.Impulse);
                 rb.velocity = Vector2.ClampMagnitude(rb.velocity, maxWalkSpeed);
                 break;
 
             case State.Crouch_Walk:
-                rb.AddRelativeForce(new Vector2(move * crouchWalkSpeed, 0), ForceMode2D.Impulse);
+                rb.AddRelativeForce(new Vector2(move.x * crouchWalkSpeed, 0), ForceMode2D.Impulse);
                 break;
 
             case State.Roll:
@@ -451,7 +452,7 @@ public class Player : MonoBehaviour
                 break;
 
             case State.Climb:
-                rb.velocity = new Vector2(0, updown * climbSpeed);
+                rb.velocity = new Vector2(0, move.y * climbSpeed);
                 break;
 
             case State.Slide_Down:
@@ -480,16 +481,12 @@ public class Player : MonoBehaviour
         }
     }
 
-    void InputValues()
-    {
-        move    = input.FindActionMap("Player").FindAction("move").ReadValue<float>();
-        jump    = Mathf.Ceil(input.FindActionMap("Player").FindAction("jump").ReadValue<float>());
-        climb   = Mathf.Ceil(input.FindActionMap("Player").FindAction("climb").ReadValue<float>());
-        run     = Mathf.Ceil(input.FindActionMap("Player").FindAction("run").ReadValue<float>());
-        crouch  = Mathf.Ceil(input.FindActionMap("Player").FindAction("crouch").ReadValue<float>());
-        attack  = Mathf.Ceil(input.FindActionMap("Player").FindAction("attack").ReadValue<float>());
-        updown  = input.FindActionMap("Player").FindAction("updown").ReadValue<float>();
-    }
+    public void OnMove(InputAction.CallbackContext context) => move = context.ReadValue<Vector2>();
+    public void OnJump(InputAction.CallbackContext context) => jump = Mathf.Ceil(context.ReadValue<float>());
+    public void OnClimb(InputAction.CallbackContext context) => climb = Mathf.Ceil(context.ReadValue<float>());
+    public void OnRun(InputAction.CallbackContext context) => run = Mathf.Ceil(context.ReadValue<float>());
+    public void OnCrouch(InputAction.CallbackContext context) => crouch = Mathf.Ceil(context.ReadValue<float>());
+    public void OnAttack(InputAction.CallbackContext context) => attack = Mathf.Ceil(context.ReadValue<float>());
 
     // Filtros para achar o contato, dependendo do angulo de contato do outro objeto
     ContactFilter2D contactFilterGround;

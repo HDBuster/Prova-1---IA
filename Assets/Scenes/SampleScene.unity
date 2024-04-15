@@ -322,6 +322,58 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[0].m_ActionId
+      value: 9dd89f0b-c0f4-4b26-8f58-2dea0287d3d4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_ActionId
+      value: 6e637fe4-7041-4974-acaa-ca7564d38a1c
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_ActionId
+      value: 024a6ca1-bc98-4508-bef2-befa110c46be
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_ActionId
+      value: a0e110f3-0a90-4567-b027-e24394fc2a0e
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_ActionId
+      value: 9f7b499a-0c86-4771-ae5d-f36ad25d8703
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_ActionId
+      value: 119d2a2c-8bbe-46a1-afdb-9a963731bda4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[0].m_ActionName
+      value: Player/move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[1].m_ActionName
+      value: Player/run[/Keyboard/shift]
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[2].m_ActionName
+      value: Player/jump[/Keyboard/space]
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_ActionName
+      value: Player/crouch[/Keyboard/q]
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[4].m_ActionName
+      value: Player/attack[/Mouse/leftButton]
+      objectReference: {fileID: 0}
+    - target: {fileID: 7858187186153273207, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: m_ActionEvents.Array.data[5].m_ActionName
+      value: Player/climb[/Keyboard/e]
+      objectReference: {fileID: 0}
     - target: {fileID: 7858187186153273208, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
       propertyPath: rollDistance
       value: 5
