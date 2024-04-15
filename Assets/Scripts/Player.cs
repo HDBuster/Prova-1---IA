@@ -49,7 +49,7 @@ public class Player : MonoBehaviour
     [SerializeField] float xInput;
 
 
-    enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll, Attack, Attack_Up, Attack_Down }
+    enum State {Idle ,Walk ,Jump ,Air ,Fall ,Climb ,Hanging ,Slide_Down ,Crouch ,Crouch_Walk ,Roll, Attack, Attack_Air }
     State state = State.Idle;
 
     //-------------------------------------------------
@@ -136,6 +136,10 @@ public class Player : MonoBehaviour
         {
             state = State.Hanging;
         }
+        else if (attack == 1 && !isGrounded)
+        {
+            state = State.Attack_Air;
+        }
     }
 
     void AirState()
@@ -154,6 +158,10 @@ public class Player : MonoBehaviour
         {
             state = State.Hanging;
         }
+        else if (attack == 1 && !isGrounded)
+        {
+            state = State.Attack_Air;
+        }
     }
 
     void FallState()
@@ -171,6 +179,10 @@ public class Player : MonoBehaviour
         else if ((isWalledLeft || isWalledRight) && climb == 1)
         {
             state = State.Hanging;
+        }
+        else if (attack == 1 && !isGrounded)
+        {
+            state = State.Attack_Air;
         }
     }
 
@@ -328,6 +340,7 @@ public class Player : MonoBehaviour
         animator.speed = attackSpeed * 0.1f;
 
         slashObject.transform.position = this.transform.position + new Vector3(0.6f * direction, 0.3f, 0);
+        slashAnimator.Play("Forward");
         SlashSpriteFlip();
         slashSprite.enabled = true;
 
@@ -337,17 +350,82 @@ public class Player : MonoBehaviour
             attackEnded = false;
             slashSprite.enabled = false;
 
-            if (isGrounded && move.x == 0)
+            switch (isGrounded)
             {
-                state = State.Idle;
+                case true:
+                    if (move.x == 0)
+                    {
+                        state = State.Idle;
+                    }
+                    else if (move.x != 0)
+                    {
+                        state = State.Walk;
+                    }
+                    break;
+
+                case false:
+                    state = State.Jump;
+                    break;
             }
-            else if (isGrounded && move.x != 0)
+        }
+    }
+
+    void AttackAirState()
+    {
+        //action
+        switch (move.y)
+        {
+            case 1:
+                animator.Play("Attack_Up");
+                animator.speed = attackSpeed * 0.1f;
+
+                slashObject.transform.position = this.transform.position + new Vector3(0, 1, 0);
+                slashAnimator.Play("Up");
+                break;
+            case -1:
+                animator.Play("Attack_Down");
+                animator.speed = attackSpeed * 0.1f;
+
+                slashObject.transform.position = this.transform.position + new Vector3(0, -1, 0);
+                slashAnimator.Play("Down");
+                break;
+            case 0:
+                animator.Play("Attack");
+                animator.speed = attackSpeed * 0.1f;
+
+                slashObject.transform.position = this.transform.position + new Vector3(0.6f * direction, 0.3f, 0);
+                slashAnimator.Play("Forward");
+                SlashSpriteFlip();
+                break;
+        }
+        slashSprite.enabled = true;
+
+        //transition
+        if (attackEnded)
+        {
+            attackEnded = false;
+            slashSprite.enabled = false;
+
+            switch (isGrounded)
             {
-                state = State.Walk;
-            }
-            else if (!isGrounded)
-            {
-                state = State.Jump;
+                case false:
+                    if (rb.velocity.y > 0)
+                    {
+                        state = State.Jump;
+                    }
+                    else if (rb.velocity.y == 0)
+                    {
+                        state = State.Air;
+                    }
+                    else if (rb.velocity.y < 0)
+                    {
+                        state = State.Fall;
+                    }
+                    break;
+
+                case true:
+                    state = State.Idle;
+                    break;
             }
         }
     }
@@ -368,6 +446,7 @@ public class Player : MonoBehaviour
             case State.Hanging:     HangingState();     break;
             case State.Slide_Down:  Slide_DownState();  break;
             case State.Attack:      AttackState();      break;
+            case State.Attack_Air:  AttackAirState();   break;
         }
     }
 
