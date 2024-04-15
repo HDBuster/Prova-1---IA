@@ -13,6 +13,6 @@ ALUNOS: Breno Souza Vieira e Samuel Santos Figueirêdo
 - ATTACK WHILE JUMP = LEFT MOUSE
 - ATTACK WHILE JUMP UP/DOWN = LEFT MOUSE + W/S
 
-![Arvore Logica](arvore_logica.png)
+![Arvore Logica](diagrama.png)
 
 [![Video Estados](https://img.youtube.com/vi/NuV0zUY8_H8/0.jpg)](https://www.youtube.com/watch?v=NuV0zUY8_H8)
