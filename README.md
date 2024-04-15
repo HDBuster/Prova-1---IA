@@ -11,5 +11,6 @@ ALUNOS: Breno Souza Vieira e Samuel Santos Figueirêdo
 - SLIDE DOWN = S + SHIFT
 - ATTACK = LEFT MOUSE
 - ATTACK WHILE JUMP = LEFT MOUSE
+- ATTACK WHILE JUMP UP/DOWN = LEFT MOUSE + W/S
 
 ![Arvore Logica](arvore_logica.png)
