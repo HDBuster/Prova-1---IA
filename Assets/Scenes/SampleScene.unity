@@ -1146,6 +1146,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 7858187186153273208, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
+      propertyPath: crouchWalkSpeed
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 7858187186153273210, guid: 1312c739a65fe3a4a942441f0c1fd5f8, type: 3}
       propertyPath: m_RootOrder
       value: 3

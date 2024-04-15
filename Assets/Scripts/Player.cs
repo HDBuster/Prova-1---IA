@@ -236,7 +236,7 @@ public class Player : MonoBehaviour
     {
         //actions
         animator.Play("Crouch_Walk");
-        animator.speed = crouchWalkSpeed * 0.25f;
+        animator.speed = crouchWalkSpeed;
         SpriteFlip();
 
         //transition
